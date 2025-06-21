@@ -70,8 +70,19 @@ def generate_tutorial():
         response.raise_for_status()
         try:
             result = response.json()
+            # إذا كان الرد يحتوي على مفتاح output
+            if "output" in result:
+                import re
+                output_text = result["output"]
+                # إزالة ```json و ```
+                cleaned = re.sub(r"^```json\s*|```$", "", output_text.strip(), flags=re.MULTILINE)
+                tutorial_json = json.loads(cleaned)
+                result = tutorial_json
+            # تحقق أن الرد يحتوي على title و steps
+            if not ("title" in result and "steps" in result):
+                return jsonify({"error": "الرد من المزود غير صحيح", "details": result}), 500
         except Exception:
-            result = {"response_text": response.text}
+            return jsonify({"error": "الرد من المزود ليس JSON صالح", "details": response.text}), 500
         return jsonify(result), 200
     except Exception as e:
         print(traceback.format_exc())
