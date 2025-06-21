@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المعلم التفاعلي - تعلم استخدام المواقع والبرامج</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        secondary: '#764ba2',
+                        success: '#10B981',
+                        warning: '#F59E0B',
+                        danger: '#EF4444'
+                    },
+                    fontFamily: {
+                        arabic: ['Tahoma', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes point {
+            0%, 100% { transform: translateX(0px); }
+            50% { transform: translateX(10px); }
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        .float { animation: float 3s ease-in-out infinite; }
+        .point { animation: point 2s ease-in-out infinite; }
+        .pulse-ring { animation: pulse-ring 2s infinite; }
+        .tutorial-screen {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 400px;
+        }
+        .step-indicator {
+            background: rgba(93, 92, 222, 0.1);
+            border: 2px solid #5D5CDE;
+        }
+        .teacher-avatar {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+        }
+        .highlight-element {
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.5);
+            animation: pulse-highlight 1.5s infinite;
+        }
+        @keyframes pulse-highlight {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .screenshot-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-arabic transition-colors duration-300">
+    <div class="min-h-screen p-4">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-primary mb-2">🎓 المعلم التفاعلي</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-300">تعلم استخدام أي موقع أو برنامج خطوة بخطوة</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Input Section -->
+            <div class="lg:col-span-2">
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 shadow-lg mb-6">
+                    <label for="userQuery" class="block text-lg font-semibold mb-3">ما الذي تريد تعلم استخدامه؟</label>
+                    <div class="flex gap-3">
+                        <input 
+                            type="text" 
+                            id="userQuery" 
+                            placeholder="مثال: كيفية إنشاء repository جديد في GitHub"
+                            class="flex-1 px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        >
+                        <button 
+                            id="startTutorial" 
+                            class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-semibold"
+                        >
+                            ابدأ التعلم 🚀
+                        </button>
+                    </div>
+                    
+                    <!-- Quick Examples -->
+                    <div class="mt-4">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">أمثلة سريعة:</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="example-btn px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full text-sm hover:bg-primary hover:text-white transition-colors">إنشاء repository في GitHub</button>
+                            <button class="example-btn px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full text-sm hover:bg-primary hover:text-white transition-colors">رفع ملف على Google Drive</button>
+                            <button class="example-btn px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full text-sm hover:bg-primary hover:text-white transition-colors">إنشاء عرض تقديمي في PowerPoint</button>
+                            <button class="example-btn px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full text-sm hover:bg-primary hover:text-white transition-colors">استخدام Photoshop للمبتدئين</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="hidden text-center py-8">
+                    <div class="flex flex-col items-center">
+                        <div class="relative w-24 h-24 mb-4">
+                            <div class="absolute inset-0 bg-primary/10 rounded-full animate-ping"></div>
+                            <div class="absolute inset-2 bg-primary/20 rounded-full animate-ping" style="animation-delay: 0.2s"></div>
+                            <div class="absolute inset-4 bg-primary rounded-full flex items-center justify-center">
+                                <svg class="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-gray-600 dark:text-gray-400">جاري إنشاء الدرس التفاعلي...</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">قد يستغرق هذا بضع لحظات</p>
+                    </div>
+                </div>
+
+                <!-- Tutorial Screen -->
+                <div id="tutorialContainer" class="hidden">
+                    <!-- Tutorial Header -->
+                    <div class="bg-gradient-to-r from-primary to-purple-600 rounded-t-xl p-4 text-white">
+                        <h2 id="tutorialTitle" class="text-xl font-bold mb-2"></h2>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm">الخطوة</span>
+                                <span id="currentStep" class="font-bold">1</span>
+                                <span class="text-sm">من</span>
+                                <span id="totalSteps" class="font-bold">5</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button id="prevStep" class="px-3 py-1 bg-white/20 rounded hover:bg-white/30 transition-colors flex items-center" disabled>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                    السابق
+                                </button>
+                                <button id="nextStep" class="px-3 py-1 bg-white/20 rounded hover:bg-white/30 transition-colors flex items-center">
+                                    التالي
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Tutorial Area -->
+                    <div class="relative bg-gray-100 dark:bg-gray-800 rounded-b-xl overflow-hidden" style="min-height: 500px;">
+                        <!-- Simulated Screen -->
+                        <div id="simulatedScreen" class="tutorial-screen p-8 relative">
+                            <div id="screenshotOverlay" class="screenshot-overlay hidden">
+                                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md text-center">
+                                    <h3 class="text-xl font-bold mb-3">تحميل لقطة شاشة</h3>
+                                    <p class="mb-4">لتحسين تجربة التعلم، يمكنك تحميل لقطة شاشة للبرنامج أو الموقع الذي تريد تعلمه</p>
+                                    <div class="flex justify-center gap-3">
+                                        <button id="uploadScreenshotBtn" class="px-4 py-2 bg-primary text-white rounded-lg">تحميل صورة</button>
+                                        <button id="skipScreenshotBtn" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded-lg">تخطي</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="defaultScreenContent" class="text-center text-white">
+                                <div class="text-6xl mb-4">🖥️</div>
+                                <h3 class="text-xl font-bold mb-2">شاشة المحاكاة</h3>
+                                <p class="opacity-80">ستظهر هنا شاشة محاكاة للموقع أو البرنامج</p>
+                            </div>
+
+                            <!-- Interactive Elements (will be added dynamically) -->
+                            <div id="interactiveElements"></div>
+
+                            <!-- Pointer Animation -->
+                            <div id="pointer" class="hidden absolute w-6 h-6 bg-red-500 rounded-full pulse-ring"></div>
+                        </div>
+
+                        <!-- Teacher Avatar -->
+                        <div id="teacherAvatar" class="absolute bottom-4 right-4 w-20 h-20 teacher-avatar rounded-full flex items-center justify-center text-3xl float cursor-pointer">
+                            👨‍🏫
+                        </div>
+
+                        <!-- Speech Bubble -->
+                        <div id="speechBubble" class="hidden absolute bottom-24 right-4 bg-white dark:bg-gray-700 rounded-lg p-4 shadow-lg max-w-xs">
+                            <div class="text-sm" id="speechText"></div>
+                            <div class="absolute -bottom-2 right-6 w-4 h-4 bg-white dark:bg-gray-700 transform rotate-45"></div>
+                        </div>
+
+                        <!-- Step Instructions Panel -->
+                        <div id="instructionsPanel" class="absolute bottom-4 left-4 bg-white dark:bg-gray-700 rounded-lg p-4 shadow-lg max-w-md">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="font-bold text-primary" id="stepTitle">مرحباً بك!</h4>
+                                <div class="flex gap-1">
+                                    <button id="speedDownBtn" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-600 flex items-center justify-center" title="إبطاء السرعة">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1V9a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586 3.707 5.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                    <button id="speedUpBtn" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-600 flex items-center justify-center" title="زيادة السرعة">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-sm mb-3" id="stepDescription">ابدأ بالضغط على زر "ابدأ التعلم" لتعلم استخدام المنصة المطلوبة</p>
+                            <div class="flex gap-2">
+                                <button id="stepAction" class="flex-1 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition-colors text-sm">
+                                    فهمت، التالي
+                                </button>
+                                <button id="repeatStep" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors text-sm">
+                                    كرر الشرح
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="mt-4 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div id="progressBar" class="bg-primary rounded-full h-2 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="hidden max-w-4xl mx-auto">
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-300">
+                        <h3 class="font-bold mb-2">حدث خطأ</h3>
+                        <p id="errorText"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar - Tutorial Library & Progress -->
+            <div class="lg:col-span-1">
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 shadow-lg mb-6">
+                    <h3 class="text-xl font-semibold mb-4">📚 مكتبة الدروس</h3>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-medium">إنشاء repository في GitHub</h4>
+                                <span class="text-xs bg-success/20 text-success px-2 py-1 rounded">مكتمل</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">5 خطوات | 10 دقائق</p>
+                            <button class="w-full py-2 bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 rounded text-sm">عرض الدرس</button>
+                        </div>
+                        <div class="p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-medium">رفع ملف على Google Drive</h4>
+                                <span class="text-xs bg-warning/20 text-warning px-2 py-1 rounded">قيد التقدم</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">3 من 4 خطوات</p>
+                            <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5 mb-3">
+                                <div class="bg-warning h-1.5 rounded-full" style="width: 75%"></div>
+                            </div>
+                            <button class="w-full py-2 bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 rounded text-sm">استكمال</button>
+                        </div>
+                        <div class="p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-medium">إنشاء عرض تقديمي في PowerPoint</h4>
+                                <span class="text-xs bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">جديد</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">6 خطوات | 15 دقائق</p>
+                            <button class="w-full py-2 bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 rounded text-sm">بدء التعلم</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4">🏆 إنجازاتي</h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="bg-white dark:bg-gray-700 rounded-lg p-3 text-center">
+                            <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <span class="text-primary text-xl">5</span>
+                            </div>
+                            <p class="text-sm">دروس مكتملة</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 rounded-lg p-3 text-center">
+                            <div class="w-12 h-12 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <span class="text-success text-xl">32</span>
+                            </div>
+                            <p class="text-sm">خطوات متقنة</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 rounded-lg p-3 text-center">
+                            <div class="w-12 h-12 bg-warning/10 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <span class="text-warning text-xl">2</span>
+                            </div>
+                            <p class="text-sm">دروس قيد التقدم</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <h4 class="font-medium mb-2">أحدث الإنجازات</h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-center text-sm">
+                                <span class="w-5 h-5 bg-success rounded-full flex items-center justify-center mr-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                                إنشاء حساب GitHub
+                            </li>
+                            <li class="flex items-center text-sm">
+                                <span class="w-5 h-5 bg-success rounded-full flex items-center justify-center mr-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                                رفع ملفات على Google Drive
+                            </li>
+                            <li class="flex items-center text-sm">
+                                <span class="w-5 h-5 bg-success rounded-full flex items-center justify-center mr-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                                إنشاء عرض تقديمي في PowerPoint
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Global variables
+        let currentTutorial = null;
+        let currentStepIndex = 0;
+        let animationSpeed = 1500; // default speed in ms
+
+        // Elements
+        const userQuery = document.getElementById('userQuery');
+        const startButton = document.getElementById('startTutorial');
+        const loadingState = document.getElementById('loadingState');
+        const tutorialContainer = document.getElementById('tutorialContainer');
+        const errorMessage = document.getElementById('errorMessage');
+        const exampleButtons = document.querySelectorAll('.example-btn');
+        const screenshotOverlay = document.getElementById('screenshotOverlay');
+        const uploadScreenshotBtn = document.getElementById('uploadScreenshotBtn');
+        const skipScreenshotBtn = document.getElementById('skipScreenshotBtn');
+        const speedUpBtn = document.getElementById('speedUpBtn');
+        const speedDownBtn = document.getElementById('speedDownBtn');
+
+        // Tutorial state elements
+        const tutorialTitle = document.getElementById('tutorialTitle');
+        const currentStepSpan = document.getElementById('currentStep');
+        const totalStepsSpan = document.getElementById('totalSteps');
+        const prevStepButton = document.getElementById('prevStep');
+        const nextStepButton = document.getElementById('nextStep');
+        const stepTitle = document.getElementById('stepTitle');
+        const stepDescription = document.getElementById('stepDescription');
+        const stepActionButton = document.getElementById('stepAction');
+        const repeatStepButton = document.getElementById('repeatStep');
+        const progressBar = document.getElementById('progressBar');
+        const teacherAvatar = document.getElementById('teacherAvatar');
+        const speechBubble = document.getElementById('speechBubble');
+        const speechText = document.getElementById('speechText');
+        const pointer = document.getElementById('pointer');
+
+        // إعادة تعيين الحالة عند تحميل الصفحة
+        window.addEventListener('load', function() {
+            currentTutorial = null;
+            currentStepIndex = 0;
+            tutorialContainer.classList.add('hidden');
+            loadingState.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+            progressBar.style.width = '0%';
+            
+            // إعادة تعيين واجهة المحاكاة
+            const screen = document.getElementById('simulatedScreen');
+            screen.innerHTML = `
+                <div id="screenshotOverlay" class="screenshot-overlay hidden">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md text-center">
+                        <h3 class="text-xl font-bold mb-3">تحميل لقطة شاشة</h3>
+                        <p class="mb-4">لتحسين تجربة التعلم، يمكنك تحميل لقطة شاشة للبرنامج أو الموقع الذي تريد تعلمه</p>
+                        <div class="flex justify-center gap-3">
+                            <button id="uploadScreenshotBtn" class="px-4 py-2 bg-primary text-white rounded-lg">تحميل صورة</button>
+                            <button id="skipScreenshotBtn" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded-lg">تخطي</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="defaultScreenContent" class="text-center text-white">
+                    <div class="text-6xl mb-4">🖥️</div>
+                    <h3 class="text-xl font-bold mb-2">شاشة المحاكاة</h3>
+                    <p class="opacity-80">ستظهر هنا شاشة محاكاة للموقع أو البرنامج</p>
+                </div>
+                <div id="interactiveElements"></div>
+                <div id="pointer" class="hidden absolute w-6 h-6 bg-red-500 rounded-full pulse-ring"></div>
+            `;
+            
+            // إعادة إضافة مستمعي الأحداث بعد إعادة بناء DOM
+            document.getElementById('uploadScreenshotBtn')?.addEventListener('click', handleScreenshotUpload);
+            document.getElementById('skipScreenshotBtn')?.addEventListener('click', () => {
+                screenshotOverlay.classList.add('hidden');
+            });
+        });
+
+        // Event listeners
+        startButton.addEventListener('click', handleStartTutorial);
+        userQuery.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleStartTutorial();
+        });
+
+        exampleButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                userQuery.value = btn.textContent;
+                handleStartTutorial();
+            });
+        });
+
+        prevStepButton.addEventListener('click', () => navigateStep(-1));
+        nextStepButton.addEventListener('click', () => navigateStep(1));
+        stepActionButton.addEventListener('click', () => navigateStep(1));
+        repeatStepButton.addEventListener('click', showCurrentStep);
+        uploadScreenshotBtn.addEventListener('click', handleScreenshotUpload);
+        skipScreenshotBtn.addEventListener('click', () => {
+            screenshotOverlay.classList.add('hidden');
+        });
+        speedUpBtn.addEventListener('click', () => adjustAnimationSpeed(-500));
+        speedDownBtn.addEventListener('click', () => adjustAnimationSpeed(500));
+
+        teacherAvatar.addEventListener('click', () => {
+            showSpeechBubble("مرحباً! أنا هنا لمساعدتك في تعلم استخدام هذه المنصة خطوة بخطوة. اتبع التعليمات واضغط على الأزرار عندما أخبرك بذلك!");
+        });
+
+        // إعادة تعيين حالة البرنامج التعليمي
+        function resetTutorialState() {
+            currentTutorial = null;
+            currentStepIndex = 0;
+            progressBar.style.width = '0%';
+            
+            // إعادة تعيين واجهة المحاكاة
+            const screen = document.getElementById('simulatedScreen');
+            screen.innerHTML = `
+                <div id="screenshotOverlay" class="screenshot-overlay hidden">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md text-center">
+                        <h3 class="text-xl font-bold mb-3">تحميل لقطة شاشة</h3>
+                        <p class="mb-4">لتحسين تجربة التعلم، يمكنك تحميل لقطة شاشة للبرنامج أو الموقع الذي تريد تعلمه</p>
+                        <div class="flex justify-center gap-3">
+                            <button id="uploadScreenshotBtn" class="px-4 py-2 bg-primary text-white rounded-lg">تحميل صورة</button>
+                            <button id="skipScreenshotBtn" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded-lg">تخطي</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="defaultScreenContent" class="text-center text-white">
+                    <div class="text-6xl mb-4">🖥️</div>
+                    <h3 class="text-xl font-bold mb-2">شاشة المحاكاة</h3>
+                    <p class="opacity-80">ستظهر هنا شاشة محاكاة للموقع أو البرنامج</p>
+                </div>
+                <div id="interactiveElements"></div>
+                <div id="pointer" class="hidden absolute w-6 h-6 bg-red-500 rounded-full pulse-ring"></div>
+            `;
+            
+            // إعادة إضافة مستمعي الأحداث بعد إعادة بناء DOM
+            document.getElementById('uploadScreenshotBtn')?.addEventListener('click', handleScreenshotUpload);
+            document.getElementById('skipScreenshotBtn')?.addEventListener('click', () => {
+                screenshotOverlay.classList.add('hidden');
+            });
+        }
+
+        async function handleStartTutorial() {
+            // إعادة تعيين حالة البرنامج التعليمي
+            resetTutorialState();
+            
+            const query = userQuery.value.trim();
+            if (!query) {
+                showError("الرجاء كتابة ما تريد تعلمه");
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch("/generate-tutorial", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ query: query })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    showError(errorData.error || "حدث خطأ أثناء توليد الدرس.");
+                    hideLoading();
+                    return;
+                }
+
+                const result = await response.json();
+                displayTutorial(result);
+            } catch (error) {
+                console.error("حدث خطأ أثناء الاتصال بالخادم:", error);
+                showError("حدث خطأ في الاتصال بالخادم.");
+                
+                // فقط في حالة الخطأ: عرض درس تجريبي
+                const demoTutorial = createDemoTutorial(query);
+                displayTutorial(demoTutorial);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function createDemoTutorial(query) {
+            return {
+                title: `تعلم: ${query}`,
+                steps: [
+                    {
+                        title: "البداية",
+                        description: "مرحباً بك في الدرس التفاعلي! سنتعلم معاً خطوة بخطوة.",
+                        action: "اضغط 'التالي' للمتابعة",
+                        element: "زر التالي",
+                        tip: "خذ وقتك واقرأ كل خطوة بعناية",
+                        x: 80,
+                        y: 90
+                    },
+                    {
+                        title: "التحضير",
+                        description: "تأكد من أن لديك اتصال إنترنت مستقر وأن المتصفح محدث.",
+                        action: "افتح المتصفح واذهب للموقع المطلوب",
+                        element: "شريط العناوين",
+                        tip: "استخدم أحدث إصدار من المتصفح للحصول على أفضل تجربة",
+                        x: 50,
+                        y: 10
+                    },
+                    {
+                        title: "بدء العملية",
+                        description: "الآن سنبدأ في تنفيذ المهمة المطلوبة خطوة بخطوة.",
+                        action: "ابحث عن الزر أو القائمة المطلوبة",
+                        element: "عنصر التفاعل الرئيسي",
+                        tip: "عادة ما تكون الأزرار المهمة واضحة ومميزة",
+                        x: 40,
+                        y: 50
+                    },
+                    {
+                        title: "تنفيذ الخطوات",
+                        description: "اتبع التعليمات بعناية ولا تتردد في إعادة قراءة أي خطوة.",
+                        action: "قم بتطبيق ما تعلمته",
+                        element: "عناصر التفاعل المختلفة",
+                        tip: "إذا لم تعمل خطوة، راجعها مرة أخرى",
+                        x: 60,
+                        y: 70
+                    },
+                    {
+                        title: "إتمام العملية",
+                        description: "تأكد من حفظ عملك أو تأكيد التغييرات إذا لزم الأمر.",
+                        action: "اضغط حفظ أو تأكيد",
+                        element: "زر الحفظ",
+                        tip: "احرص دائماً على حفظ عملك لتجنب فقدانه",
+                        x: 85,
+                        y: 90
+                    }
+                ]
+            };
+        }
+
+        function displayTutorial(tutorial) {
+            currentTutorial = tutorial;
+            currentStepIndex = 0;
+            
+            hideLoading();
+            hideError();
+            
+            tutorialTitle.textContent = tutorial.title;
+            totalStepsSpan.textContent = tutorial.steps.length;
+            
+            tutorialContainer.classList.remove('hidden');
+            
+            // Show screenshot overlay for the first time
+            const seenTutorial = sessionStorage.getItem('seenTutorial');
+            if (!seenTutorial) {
+                screenshotOverlay.classList.remove('hidden');
+                sessionStorage.setItem('seenTutorial', 'true');
+            }
+            
+            showCurrentStep();
+            createSimulatedScreen();
+        }
+
+        function showCurrentStep() {
+            if (!currentTutorial) return;
+            
+            const step = currentTutorial.steps[currentStepIndex];
+            const stepNumber = currentStepIndex + 1;
+            
+            currentStepSpan.textContent = stepNumber;
+            stepTitle.textContent = step.title;
+            stepDescription.textContent = step.description;
+            
+            // Update progress bar
+            const progress = (stepNumber / currentTutorial.steps.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // Update navigation buttons
+            prevStepButton.disabled = currentStepIndex === 0;
+            nextStepButton.disabled = currentStepIndex === currentTutorial.steps.length - 1;
+            
+            if (currentStepIndex === currentTutorial.steps.length - 1) {
+                stepActionButton.textContent = "إنهاء الدرس";
+                nextStepButton.textContent = "إنهاء";
+            } else {
+                stepActionButton.textContent = "فهمت، التالي";
+                nextStepButton.textContent = "التالي";
+            }
+            
+            // Show speech bubble with tip
+            if (step.tip) {
+                setTimeout(() => {
+                    showSpeechBubble(step.tip);
+                }, 1000);
+            }
+            
+            // Animate teacher avatar
+            teacherAvatar.classList.add('point');
+            setTimeout(() => {
+                teacherAvatar.classList.remove('point');
+            }, 2000);
+            
+            // Show pointer animation
+            if (step.x && step.y) {
+                pointer.classList.remove('hidden');
+                pointer.style.left = `${step.x}%`;
+                pointer.style.top = `${step.y}%`;
+            } else {
+                pointer.classList.add('hidden');
+            }
+        }
+
+        function navigateStep(direction) {
+            if (!currentTutorial) return;
+            
+            const newIndex = currentStepIndex + direction;
+            
+            if (newIndex < 0 || newIndex >= currentTutorial.steps.length) {
+                if (newIndex >= currentTutorial.steps.length) {
+                    // Tutorial completed
+                    showSpeechBubble("ممتاز! لقد أكملت الدرس بنجاح 🎉");
+                    setTimeout(() => {
+                        tutorialContainer.classList.add('hidden');
+                        userQuery.value = '';
+                        showSpeechBubble("هل تريد تعلم شيء آخر؟");
+                    }, 2000);
+                }
+                return;
+            }
+            
+            currentStepIndex = newIndex;
+            showCurrentStep();
+        }
+
+        function createSimulatedScreen() {
+            const screen = document.getElementById('simulatedScreen');
+            const defaultContent = document.getElementById('defaultScreenContent');
+            
+            // Hide default content
+            defaultContent.classList.add('hidden');
+            
+            // Create a more detailed simulated interface
+            const interactiveElements = document.getElementById('interactiveElements');
+            interactiveElements.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 rounded-lg h-full p-6 shadow-inner relative">
+                    <div class="flex items-center justify-between mb-6 border-b pb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                            <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                        </div>
+                        <div class="flex-1 mx-4 bg-gray-100 dark:bg-gray-700 rounded px-3 py-1 text-sm text-gray-600 dark:text-gray-300">
+                            https://example.com
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1 bg-gray-200 dark:bg-gray-600 rounded text-sm">↻</button>
+                            <button class="px-3 py-1 bg-gray-200 dark:bg-gray-600 rounded text-sm">⋮</button>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="w-24 h-24 bg-gradient-to-br from-primary to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl">
+                            🌐
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-gray-800 dark:text-gray-200">واجهة محاكاة</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">ستظهر هنا عناصر تفاعلية حسب الدرس</p>
+                        
+                        <div class="grid grid-cols-2 gap-4 max-w-md mx-auto">
+                            <button class="interactive-btn px-4 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                                عنصر تفاعلي 1
+                            </button>
+                            <button class="interactive-btn px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                                عنصر تفاعلي 2
+                            </button>
+                            <button class="interactive-btn px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                                عنصر تفاعلي 3
+                            </button>
+                            <button class="interactive-btn px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
+                                عنصر تفاعلي 4
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add click handlers to interactive elements
+            const interactiveButtons = screen.querySelectorAll('.interactive-btn');
+            interactiveButtons.forEach((btn, index) => {
+                btn.addEventListener('click', () => {
+                    showSpeechBubble(`ممتاز! لقد ضغطت على العنصر ${index + 1}`);
+                    btn.classList.add('highlight-element');
+                    setTimeout(() => {
+                        btn.classList.remove('highlight-element');
+                    }, 2000);
+                });
+            });
+        }
+
+        function handleScreenshotUpload() {
+            // This would normally open a file dialog
+            // For demo, we'll simulate the upload
+            screenshotOverlay.classList.add('hidden');
+            
+            // Simulate adding a screenshot
+            const screen = document.getElementById('simulatedScreen');
+            screen.innerHTML = `
+                <div class="w-full h-full bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80')">
+                    <div class="absolute inset-0 bg-black/20"></div>
+                </div>
+                <div id="pointer" class="absolute w-6 h-6 bg-red-500 rounded-full pulse-ring"></div>
+            `;
+            
+            showSpeechBubble("تم تحميل لقطة الشاشة بنجاح! الآن سنبدأ في التعلم خطوة بخطوة.");
+        }
+
+        function showSpeechBubble(text) {
+            speechText.textContent = text;
+            speechBubble.classList.remove('hidden');
+            
+            setTimeout(() => {
+                speechBubble.classList.add('hidden');
+            }, 5000);
+        }
+
+        function adjustAnimationSpeed(change) {
+            animationSpeed += change;
+            
+            // Ensure speed stays within reasonable bounds
+            if (animationSpeed < 500) animationSpeed = 500;
+            if (animationSpeed > 3000) animationSpeed = 3000;
+            
+            // Update animations
+            document.documentElement.style.setProperty('--animation-speed', `${animationSpeed}ms`);
+            
+            // Show confirmation message
+            const speedText = animationSpeed < 1000 ? "سريع" : animationSpeed < 2000 ? "متوسط" : "بطيء";
+            showSpeechBubble(`تم تغيير سرعة الشرح إلى: ${speedText}`);
+        }
+
+        function showLoading() {
+            loadingState.classList.remove('hidden');
+            tutorialContainer.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+        }
+
+        function hideLoading() {
+            loadingState.classList.add('hidden');
+        }
+
+        function showError(message) {
+            document.getElementById('errorText').textContent = message;
+            errorMessage.classList.remove('hidden');
+            tutorialContainer.classList.add('hidden');
+            loadingState.classList.add('hidden');
+        }
+
+        function hideError() {
+            errorMessage.classList.add('hidden');
+        }
+
+        // Initialize with welcome message
+        setTimeout(() => {
+            showSpeechBubble("مرحباً! أنا معلمك التفاعلي. اكتب ما تريد تعلمه وسأرشدك خطوة بخطوة!");
+        }, 1000);
+    </script>
+</body>
+</html>
