@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os
-import json
 import requests
+import json
 from dotenv import load_dotenv
 import traceback
 
@@ -30,38 +30,52 @@ def generate_tutorial():
         return jsonify({"error": "استعلام المستخدم مطلوب"}), 400
 
     user_query = data["query"]
-    print(f"🔵 إرسال الطلب إلى الويب هوك لـ: {user_query}")
+    prompt_template = """
+قم بإنشاء دليل تعليمي تفاعلي يحتوي على:
+1. عنوان للدرس
+2. 5-7 خطوات واضحة ومحددة
+3. لكل خطوة: عنوان، وصف مفصل، والإجراء المطلوب
 
+اجعل كل خطوة واضحة ومحددة مع تحديد أين يضغط المستخدم بالضبط.
+
+قدم النتيجة بصيغة JSON فقط بهذا التنسيق:
+{{
+  "title": "عنوان الدرس",
+  "steps": [
+    {{
+      "title": "عنوان الخطوة",
+      "description": "وصف مفصل للخطوة",
+      "action": "الإجراء المطلوب",
+      "element": "العنصر المراد الضغط عليه",
+      "tip": "نصيحة إضافية",
+      "x": 50,
+      "y": 30
+    }}
+  ]
+}}
+
+الرجاء إرجاع JSON فقط بدون أي نص إضافي.
+الموضوع: {user_query}
+    """
+    prompt = prompt_template.format(user_query=user_query)
     webhook_url = "https://call-center-production-334e.up.railway.app/webhook/b003b9fc-23a5-48f4-9094-d8d89bc1c2eb"
-    payload = {"query": user_query}
-
     try:
-        response = requests.post(webhook_url, json=payload, timeout=20)
-        if response.status_code != 200:
-            return jsonify({
-                "error": "فشل في الاتصال بالويب هوك",
-                "status_code": response.status_code,
-                "response": response.text
-            }), 500
-
-        # محاولة تحليل JSON من الاستجابة
+        response = requests.post(
+            webhook_url,
+            json={"prompt": prompt},
+            timeout=20
+        )
+        print("📥 الرد القادم من الويب هوك:")
+        print(response.text)
+        response.raise_for_status()
         try:
-            json_data = response.json()
-            return jsonify(json_data)
-        except Exception as e:
-            return jsonify({
-                "error": "فشل في تحليل استجابة الويب هوك",
-                "message": str(e),
-                "response": response.text
-            }), 500
-
+            result = response.json()
+        except Exception:
+            result = {"response_text": response.text}
+        return jsonify(result), 200
     except Exception as e:
-        error_trace = traceback.format_exc()
-        print(f"❌ خطأ في إرسال الطلب للويب هوك:\n{error_trace}")
-        return jsonify({
-            "error": "فشل في إرسال الطلب للويب هوك",
-            "message": str(e)
-        }), 500
+        print(traceback.format_exc())
+        return jsonify({"error": "فشل الاتصال بالويب هوك", "details": str(e)}), 500
 
 # ✅ تشغيل الخادم مع إعدادات Render
 if __name__ == "__main__":
